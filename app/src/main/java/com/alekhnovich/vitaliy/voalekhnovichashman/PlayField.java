@@ -8,7 +8,11 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.Random;
 
@@ -35,8 +39,8 @@ public class PlayField extends View
     private boolean mIsRunning = false;
 
     float mAspectRatio = 1;
-    Player ashMan;
-    Ghost ghost;
+    public A_Player ashMan, ghost;
+    int changeDirectionCount = 0;
     int [][] gameField = new int [PLAYFIELD_HEIGHT+2][PLAYFIELD_WIDTH+2];
 
 
@@ -77,14 +81,25 @@ public class PlayField extends View
 
     protected void onTimer()
     {
-        float cx = ashMan.getPositionX();
-        if(cx < PLAYFIELD_PHYSICAL_WIDTH-5)
+        calculateNextPosition(ashMan);
+        boolean moving = calculateNextPosition(ghost);
+        if(moving)
         {
-            cx = cx + 5;
+            changeDirectionCount++;
         }
-        ashMan.setPositionX(cx);
+        if(changeDirectionCount > 5)
+        {
+            ghost.setCurrentDirection(A_Player.pickRandomDirection());
+            changeDirectionCount = 0;
+        }
+        if(!moving)
+        {
+            ghost.setCurrentDirection(A_Player.pickRandomDirection());
+        }
         invalidate();
     }
+
+
 
     public boolean isRunning()
     {
@@ -193,6 +208,63 @@ public class PlayField extends View
         setMeasuredDimension (finalWidth, finalHeight) ;
     }
 
+    private boolean calculateNextPosition(A_Player player)
+    {
+        int currentCellX =0, currentCellY = 0;
+        int nextCell = 0;
+        boolean changedPosition = false;
+        Directions direction;
+
+        direction = player.getCurrentDirection();
+
+        if(direction != null)
+        {
+            currentCellX = player.getCurrentCellX();
+            currentCellY = player.getCurrentCellY();
+            switch(direction)
+            {
+                case Up:
+                    currentCellY--;
+                    if(currentCellY < 0)
+                    {
+                        currentCellY = 13;
+                    }
+                    nextCell = gameField[currentCellY+1][currentCellX+1];
+                    break;
+                case Down:
+                    currentCellY++;
+                    currentCellY = currentCellY % 14;
+                    nextCell = gameField[currentCellY+1][currentCellX+1];
+                    break;
+                case Right:
+                    currentCellX++;
+                    currentCellX = currentCellX %14;
+                    nextCell = gameField[currentCellY+1][currentCellX+1];
+                    break;
+                case Left:
+                    currentCellX--;
+                    if(currentCellX < 0)
+                    {
+                        currentCellX = 13;
+                    }
+                    nextCell = gameField[currentCellY+1][currentCellX+1];
+                    break;
+            }
+            if(currentCellX >= 0 && currentCellX < 15 && nextCell > WALL_VALUE)
+            {
+                changedPosition = true;
+                player.setCurrentCellX(currentCellX);
+
+            }
+            if(currentCellY >= 0 && currentCellY < 15 && nextCell > WALL_VALUE)
+            {
+                changedPosition = true;
+                player.setCurrentCellY(currentCellY);
+            }
+        }
+        return changedPosition;
+    }
+
     private void createLevel(String seed)
     {
         gameField[2][2] = CAKE_VALUE;
@@ -231,21 +303,5 @@ public class PlayField extends View
                 gameField[15-i][14-j] = gameField[i][j];
             }
         }
-//        Random random = new Random(seed.hashCode());
-//        int value;
-//        for(int i = 1; i < gameField.length-1; i++)
-//        {
-//            for(int j = 1; j < gameField[i].length-1; j++)
-//            {
-//                value = random.nextInt(3);
-//                if(value > 0)
-//                {
-//                    gameField[i][j] = CAKE_VALUE;
-//                }
-//
-//            }
-//        }
-
-
     }
 }

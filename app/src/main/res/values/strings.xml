@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">voalekhnovichAshman</string>
+    <string name="instructions">Tap here to go/pause. To move, fling on game or use the control pad.</string>
+    <string name="stats">Level = 1\nCakes Left = 22</string>
 </resources>

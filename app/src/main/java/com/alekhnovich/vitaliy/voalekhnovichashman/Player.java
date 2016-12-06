@@ -23,6 +23,6 @@ public class Player extends A_Player
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.GREEN);
 
-        canvas.drawCircle(getPositionX(), getPositionY(), getPlayerSize(), paint);
+        canvas.drawCircle(getCurrentCellX()*cellWidth + 5, getCurrentCellY()*cellWidth + 5, getPlayerSize(), paint);
     }
 }

@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import java.util.Random;
+
 /**
  * Created by vio on 12/5/16.
  */
@@ -13,15 +15,7 @@ public class Ghost extends A_Player
     public Ghost(int startCellX, int startCellY, int cellWidth)
     {
         super(startCellX, startCellY, cellWidth);
-    }
-
-    public void drawGhost(Canvas canvas)
-    {
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.RED);
-
-        canvas.drawCircle(getPositionX(), getPositionY(), 3, paint);
+        setCurrentDirection(pickRandomDirection());
     }
 
     @Override
@@ -31,6 +25,6 @@ public class Ghost extends A_Player
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.RED);
 
-        canvas.drawCircle(getPositionX(), getPositionY(), getPlayerSize(), paint);
+        canvas.drawCircle(getCurrentCellX()*cellWidth + 5, getCurrentCellY()*cellWidth + 5, getPlayerSize(), paint);
     }
 }

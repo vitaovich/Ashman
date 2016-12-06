@@ -2,6 +2,8 @@ package com.alekhnovich.vitaliy.voalekhnovichashman;
 
 import android.graphics.Canvas;
 
+import java.util.Random;
+
 /**
  * Created by vio on 12/5/16.
  */
@@ -9,7 +11,7 @@ import android.graphics.Canvas;
 public abstract class A_Player
 {
     Directions currentDirection;
-    private int cellWidth;
+    protected int cellWidth;
     private int currentCellX;
     private int currentCellY;
     private float positionX;
@@ -49,7 +51,7 @@ public abstract class A_Player
     {
         this.currentCellY = currentCellY;
     }
-    public float getCurrentCellY()
+    public int getCurrentCellY()
     {
         return this.currentCellY;
     }
@@ -75,8 +77,27 @@ public abstract class A_Player
 
     public void setCurrentDirection(Directions direction)
     {
-        this.currentDirection = direction;
+            this.currentDirection = direction;
     }
+    public Directions getCurrentDirection() { return this.currentDirection; }
 
     public abstract void drawPlayer(Canvas canvas);
+
+    public static Directions pickRandomDirection()
+    {
+        Random random = new Random();
+        int value = random.nextInt(4);
+        switch(value)
+        {
+            case 0:
+                return Directions.Up;
+            case 1:
+                return Directions.Down;
+            case 2:
+                return Directions.Left;
+            case 3:
+                return Directions.Right;
+        }
+        return Directions.Up;
+    }
 }
