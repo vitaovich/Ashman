@@ -4,18 +4,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.media.MediaPlayer;
 import android.os.Handler;
-import android.util.AttributeSet;
-import android.util.Log;
+import android.util.AttributeSet;;
 import android.view.View;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
-import java.util.Random;
 
 /**
  * Created by vio on 12/5/16.
@@ -41,11 +35,11 @@ public class PlayField extends View implements MediaPlayer.OnCompletionListener
 
     float mAspectRatio = 1;
     public A_Player ashMan;
-    Ghost ghost, ghost2;
+    Ghost [] ghosts;
     int cakesLeft = 0;
     int [][] gameField = new int [PLAYFIELD_HEIGHT+2][PLAYFIELD_WIDTH+2];
     MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.pacman_eatfruit);
-    int mClipID;
+    int mClipID, ghostsPerLevel, ghostsOnLevelOne = 2;
 
 
     public PlayField(Context context)
@@ -79,8 +73,11 @@ public class PlayField extends View implements MediaPlayer.OnCompletionListener
         };
         createLevel(LEVEL_SEED);
         ashMan = new Player(1, 5, PLAYFIELD_PHYSICAL_COORDS);
-        ghost = new Ghost(11, 10, PLAYFIELD_PHYSICAL_COORDS);
-        ghost2 = new Ghost(2, 5, PLAYFIELD_PHYSICAL_COORDS);
+        ghosts = new Ghost[ghostsOnLevelOne];
+        for(int i = 0; i < ghosts.length; i++)
+        {
+            ghosts[i] = new Ghost(11 - i, 10, PLAYFIELD_PHYSICAL_COORDS);
+        }
     }
 
     protected void onTimer()
@@ -97,16 +94,37 @@ public class PlayField extends View implements MediaPlayer.OnCompletionListener
                 break;
         }
 
-        ghost.calculateNextPosition(gameField);
-        ghost.seeIfChangeDirectionIsNeeded();
-        ghost2.calculateNextPosition(gameField);
-        ghost2.seeIfChangeDirectionIsNeeded();
-
+        for(int i = 0 ; i < ghosts.length; i++)
+        {
+            ghosts[i].calculateNextPosition(gameField);
+            ghosts[i].seeIfChangeDirectionIsNeeded();
+        }
+        CheckForGhostAshCollision();
         if(cakesLeft == 0)
         {
             GameWon();
         }
         invalidate();
+
+    }
+
+    public void CheckForGhostAshCollision()
+    {
+        int ashCellX = ashMan.getCurrentCellX(), ashCellY = ashMan.getCurrentCellY();
+        for(int i = 0; i < ghosts.length; i++)
+        {
+            if(ghosts[i].getCurrentCellX() == ashCellX && ghosts[i].getCurrentCellY() == ashCellY)
+            {
+                GameLost();
+            }
+        }
+
+    }
+
+    public void GameLost()
+    {
+        playClip(R.raw.pacman_death);
+        stop();
     }
 
     public void GameWon()
@@ -183,8 +201,10 @@ public class PlayField extends View implements MediaPlayer.OnCompletionListener
 
         }
         ashMan.drawPlayer(canvas);
-        ghost.drawPlayer(canvas);
-        ghost2.drawPlayer(canvas);
+        for(int i = 0; i < ghosts.length;i++)
+        {
+            ghosts[i].drawPlayer(canvas);
+        }
         TextView stats = (TextView)((View)getParent()).findViewById(R.id.stats);
         stats.setText("Level 1\nCakes Left:" + cakesLeft);
     }
@@ -327,5 +347,23 @@ public class PlayField extends View implements MediaPlayer.OnCompletionListener
 
         mp = null ;
 
+    }
+
+    public void setPreferences(int ghostsAtLevelOne, int ghostsPerLevel)
+    {
+        this.ghostsOnLevelOne = ghostsAtLevelOne;
+        this.ghostsPerLevel = ghostsPerLevel;
+        ghosts = new Ghost[ghostsOnLevelOne];
+        for(int i = 0; i < ghosts.length; i++)
+        {
+            if(i % 2 == 1)
+            {
+                ghosts[i] = new Ghost(11 - i, 10, PLAYFIELD_PHYSICAL_COORDS);
+            }
+            else
+            {
+                ghosts[i] = new Ghost(11 - i, 3, PLAYFIELD_PHYSICAL_COORDS);
+            }
+        }
     }
 }

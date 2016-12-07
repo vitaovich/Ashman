@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.alekhnovich.vitaliy.voalekhnovichashman.NumberPickerPreference
+            android:title="@string/preferences_levelone_ghosts"
+            android:key="@string/preferences_levelone_ghosts_key"
+            app:min="1"
+            app:max="4"
+            android:defaultValue="2"/>
+    <com.alekhnovich.vitaliy.voalekhnovichashman.NumberPickerPreference
+            android:title="@string/preferences_ghosts_added"
+            android:key="@string/preferences_ghosts_added_key"
+            app:min="1"
+            app:max="4"
+            android:defaultValue="2"/>
+</PreferenceScreen>
