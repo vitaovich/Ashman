@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -20,7 +21,7 @@ import java.util.Random;
  * Created by vio on 12/5/16.
  */
 
-public class PlayField extends View
+public class PlayField extends View implements MediaPlayer.OnCompletionListener
 {
     public final static int WALL_VALUE = 0;
     public final static int CORRIDOR_VALUE = 1;
@@ -43,6 +44,8 @@ public class PlayField extends View
     Ghost ghost, ghost2;
     int cakesLeft = 0;
     int [][] gameField = new int [PLAYFIELD_HEIGHT+2][PLAYFIELD_WIDTH+2];
+    MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.pacman_eatfruit);
+    int mClipID;
 
 
     public PlayField(Context context)
@@ -90,6 +93,7 @@ public class PlayField extends View
             case CAKE_VALUE:
                 gameField[ashMan.getCurrentCellY()+1][ashMan.getCurrentCellX()+1] = CORRIDOR_VALUE;
                 cakesLeft--;
+                playClip(R.raw.pacman_eatfruit);
                 break;
         }
 
@@ -97,7 +101,18 @@ public class PlayField extends View
         ghost.seeIfChangeDirectionIsNeeded();
         ghost2.calculateNextPosition(gameField);
         ghost2.seeIfChangeDirectionIsNeeded();
+
+        if(cakesLeft == 0)
+        {
+            GameWon();
+        }
         invalidate();
+    }
+
+    public void GameWon()
+    {
+        playClip(R.raw.combo_breaker);
+        stop();
     }
 
     public boolean isRunning()
@@ -274,5 +289,43 @@ public class PlayField extends View
                 }
             }
         }
+    }
+
+    private void playClip(int id) {
+
+        if (mp!=null && id==mClipID) {
+
+            mp.pause();
+
+            mp.seekTo(0);
+
+            mp.start();
+
+        }
+
+        else {
+
+            if (mp!=null) mp.release() ;
+
+            mClipID = id ;
+
+            mp = MediaPlayer.create(getContext(), id) ;
+
+            mp.setOnCompletionListener(this) ;
+
+            mp.setVolume(0.6f,0.6f) ;
+
+            mp.start() ;
+
+        }
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer amp){
+
+        amp.release() ;
+
+        mp = null ;
+
     }
 }

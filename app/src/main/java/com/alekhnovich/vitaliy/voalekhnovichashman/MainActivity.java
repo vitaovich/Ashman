@@ -14,8 +14,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        PlayField playfield = (PlayField)findViewById(R.id.view);
-        playfield.start();
 
         upButton = (ImageView) findViewById(R.id.up);
         upButton.setOnClickListener(new View.OnClickListener() {
@@ -54,6 +52,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
         TextView instructions = (TextView) findViewById(R.id.instructions);
+        instructions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PlayField playfield = (PlayField)findViewById(R.id.view);
+                if(playfield.isRunning())
+                {
+                    playfield.stop();
+                }
+                else
+                {
+                    playfield.start();
+                }
+            }
+        });
+
+
         instructions.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
