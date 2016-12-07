@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     ImageView upButton, downButton, leftButton, rightButton;
@@ -49,6 +50,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 PlayField playfield = (PlayField)findViewById(R.id.view);
                 playfield.ashMan.setCurrentDirection(Directions.Right);
+            }
+        });
+
+        TextView instructions = (TextView) findViewById(R.id.instructions);
+        instructions.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                PlayField playfield = (PlayField)findViewById(R.id.view);
+                playfield.EnableCheat();
+                return true;
             }
         });
     }

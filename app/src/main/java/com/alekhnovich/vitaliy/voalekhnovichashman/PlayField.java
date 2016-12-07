@@ -40,7 +40,7 @@ public class PlayField extends View
 
     float mAspectRatio = 1;
     public A_Player ashMan;
-    Ghost ghost;
+    Ghost ghost, ghost2;
     int cakesLeft = 0;
     int [][] gameField = new int [PLAYFIELD_HEIGHT+2][PLAYFIELD_WIDTH+2];
 
@@ -77,6 +77,7 @@ public class PlayField extends View
         createLevel(LEVEL_SEED);
         ashMan = new Player(1, 5, PLAYFIELD_PHYSICAL_COORDS);
         ghost = new Ghost(11, 10, PLAYFIELD_PHYSICAL_COORDS);
+        ghost2 = new Ghost(2, 5, PLAYFIELD_PHYSICAL_COORDS);
     }
 
     protected void onTimer()
@@ -94,6 +95,8 @@ public class PlayField extends View
 
         ghost.calculateNextPosition(gameField);
         ghost.seeIfChangeDirectionIsNeeded();
+        ghost2.calculateNextPosition(gameField);
+        ghost2.seeIfChangeDirectionIsNeeded();
         invalidate();
     }
 
@@ -166,7 +169,7 @@ public class PlayField extends View
         }
         ashMan.drawPlayer(canvas);
         ghost.drawPlayer(canvas);
-
+        ghost2.drawPlayer(canvas);
         TextView stats = (TextView)((View)getParent()).findViewById(R.id.stats);
         stats.setText("Level 1\nCakes Left:" + cakesLeft);
     }
@@ -204,6 +207,22 @@ public class PlayField extends View
         }
 
         setMeasuredDimension (finalWidth, finalHeight) ;
+    }
+
+    public void EnableCheat()
+    {
+        for(int i = 1; i < gameField.length-1; i++)
+        {
+            for(int j = 1; j < gameField[i].length; j++)
+            {
+                if(gameField[i][j] == CAKE_VALUE)
+                {
+                    gameField[i][j] = CORRIDOR_VALUE;
+                }
+            }
+        }
+        gameField[6][7] = CAKE_VALUE;
+        cakesLeft = 1;
     }
 
     private void createLevel(String seed)
