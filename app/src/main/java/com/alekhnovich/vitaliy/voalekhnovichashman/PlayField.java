@@ -39,8 +39,9 @@ public class PlayField extends View
     private boolean mIsRunning = false;
 
     float mAspectRatio = 1;
-    public A_Player ashMan, ghost;
-    int changeDirectionCount = 0;
+    public A_Player ashMan;
+    Ghost ghost;
+    int cakesLeft = 0;
     int [][] gameField = new int [PLAYFIELD_HEIGHT+2][PLAYFIELD_WIDTH+2];
 
 
@@ -60,7 +61,6 @@ public class PlayField extends View
     {
         super(context, attrs, defStyleAttr);
         commonInit();
-
     }
 
     public void commonInit()
@@ -81,25 +81,21 @@ public class PlayField extends View
 
     protected void onTimer()
     {
-        calculateNextPosition(ashMan);
-        boolean moving = calculateNextPosition(ghost);
-        if(moving)
+        int currentPositionValue;
+        currentPositionValue = ashMan.calculateNextPosition(gameField);
+
+        switch(currentPositionValue)
         {
-            changeDirectionCount++;
+            case CAKE_VALUE:
+                gameField[ashMan.getCurrentCellY()+1][ashMan.getCurrentCellX()+1] = CORRIDOR_VALUE;
+                cakesLeft--;
+                break;
         }
-        if(changeDirectionCount > 5)
-        {
-            ghost.setCurrentDirection(A_Player.pickRandomDirection());
-            changeDirectionCount = 0;
-        }
-        if(!moving)
-        {
-            ghost.setCurrentDirection(A_Player.pickRandomDirection());
-        }
+
+        ghost.calculateNextPosition(gameField);
+        ghost.seeIfChangeDirectionIsNeeded();
         invalidate();
     }
-
-
 
     public boolean isRunning()
     {
@@ -157,6 +153,7 @@ public class PlayField extends View
                         drawWall(canvas, paint, rectf);
                         break;
                     case CAKE_VALUE:
+
                         drawCake(canvas, paint, rectf);
                         break;
                     case POWER_UP_VALUE:
@@ -169,6 +166,9 @@ public class PlayField extends View
         }
         ashMan.drawPlayer(canvas);
         ghost.drawPlayer(canvas);
+
+        TextView stats = (TextView)((View)getParent()).findViewById(R.id.stats);
+        stats.setText("Level 1\nCakes Left:" + cakesLeft);
     }
 
     private void drawWall(Canvas canvas, Paint paint, RectF rectf)
@@ -183,9 +183,7 @@ public class PlayField extends View
         drawWall(canvas, paint, rectF);
         paint.setColor(Color.WHITE);
         canvas.drawCircle(rectF.centerX(), rectF.centerY(), (float)1.5, paint);
-
     }
-
 
     @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
@@ -206,63 +204,6 @@ public class PlayField extends View
         }
 
         setMeasuredDimension (finalWidth, finalHeight) ;
-    }
-
-    private boolean calculateNextPosition(A_Player player)
-    {
-        int currentCellX =0, currentCellY = 0;
-        int nextCell = 0;
-        boolean changedPosition = false;
-        Directions direction;
-
-        direction = player.getCurrentDirection();
-
-        if(direction != null)
-        {
-            currentCellX = player.getCurrentCellX();
-            currentCellY = player.getCurrentCellY();
-            switch(direction)
-            {
-                case Up:
-                    currentCellY--;
-                    if(currentCellY < 0)
-                    {
-                        currentCellY = 13;
-                    }
-                    nextCell = gameField[currentCellY+1][currentCellX+1];
-                    break;
-                case Down:
-                    currentCellY++;
-                    currentCellY = currentCellY % 14;
-                    nextCell = gameField[currentCellY+1][currentCellX+1];
-                    break;
-                case Right:
-                    currentCellX++;
-                    currentCellX = currentCellX %14;
-                    nextCell = gameField[currentCellY+1][currentCellX+1];
-                    break;
-                case Left:
-                    currentCellX--;
-                    if(currentCellX < 0)
-                    {
-                        currentCellX = 13;
-                    }
-                    nextCell = gameField[currentCellY+1][currentCellX+1];
-                    break;
-            }
-            if(currentCellX >= 0 && currentCellX < 15 && nextCell > WALL_VALUE)
-            {
-                changedPosition = true;
-                player.setCurrentCellX(currentCellX);
-
-            }
-            if(currentCellY >= 0 && currentCellY < 15 && nextCell > WALL_VALUE)
-            {
-                changedPosition = true;
-                player.setCurrentCellY(currentCellY);
-            }
-        }
-        return changedPosition;
     }
 
     private void createLevel(String seed)
@@ -301,6 +242,17 @@ public class PlayField extends View
             for(int j = 0; j < 15; j++)
             {
                 gameField[15-i][14-j] = gameField[i][j];
+            }
+        }
+
+        for(int i = 1; i < gameField.length-1; i++)
+        {
+            for(int j = 1; j < gameField[i].length; j++)
+            {
+                if(gameField[i][j] == CAKE_VALUE)
+                {
+                    cakesLeft++;
+                }
             }
         }
     }

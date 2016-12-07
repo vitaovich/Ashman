@@ -12,10 +12,13 @@ import java.util.Random;
 
 public class Ghost extends A_Player
 {
+    private int successfulMoves;
+
     public Ghost(int startCellX, int startCellY, int cellWidth)
     {
         super(startCellX, startCellY, cellWidth);
         setCurrentDirection(pickRandomDirection());
+        successfulMoves = 0;
     }
 
     @Override
@@ -26,5 +29,28 @@ public class Ghost extends A_Player
         paint.setColor(Color.RED);
 
         canvas.drawCircle(getCurrentCellX()*cellWidth + 5, getCurrentCellY()*cellWidth + 5, getPlayerSize(), paint);
+    }
+
+    public int getSuccessfulMoves()
+    {
+        return this.successfulMoves;
+    }
+
+    public void setSuccessfulMoves(int successfulMoves)
+    {
+        this.successfulMoves = successfulMoves;
+    }
+
+    public void seeIfChangeDirectionIsNeeded()
+    {
+        if(getSuccessfulMoves() > 14 || !isMoving())
+        {
+            setCurrentDirection(pickRandomDirection());
+            setSuccessfulMoves(0);
+        }
+        if(isMoving())
+        {
+            setSuccessfulMoves(getSuccessfulMoves()+1);
+        }
     }
 }

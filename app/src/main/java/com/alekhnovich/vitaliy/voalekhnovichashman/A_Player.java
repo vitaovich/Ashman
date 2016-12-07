@@ -17,6 +17,8 @@ public abstract class A_Player
     private float positionX;
     private float positionY;
     private float playerSize;
+    private boolean moving;
+
 
     public A_Player(int startCellX, int startCellY, int cellWidth)
     {
@@ -27,6 +29,7 @@ public abstract class A_Player
         this.positionX = getCurrentCellX()*cellWidth + cellWidth/2;
         this.positionY = getCurrentCellY()*cellWidth + cellWidth/2;
         playerSize = cellWidth/3;
+        moving = false;
     }
     
     public void setPositionX(float positionX)
@@ -99,5 +102,74 @@ public abstract class A_Player
                 return Directions.Right;
         }
         return Directions.Up;
+    }
+
+    public boolean isMoving()
+    {
+        return this.moving;
+    }
+
+    public void setMoving(boolean moving)
+    {
+        this.moving = moving;
+    }
+
+    public int calculateNextPosition(int[][] gameField)
+    {
+        int currentCellX =0, currentCellY = 0;
+        int nextCell = 0;
+        Directions direction;
+        boolean moved = false;
+
+        direction = getCurrentDirection();
+
+        if(direction != null)
+        {
+            currentCellX = getCurrentCellX();
+            currentCellY = getCurrentCellY();
+            switch(direction)
+            {
+                case Up:
+                    currentCellY--;
+                    if(currentCellY < 0)
+                    {
+                        currentCellY = 13;
+                    }
+                    nextCell = gameField[currentCellY+1][currentCellX+1];
+                    break;
+                case Down:
+                    currentCellY++;
+                    currentCellY = currentCellY % 14;
+                    nextCell = gameField[currentCellY+1][currentCellX+1];
+                    break;
+                case Right:
+                    currentCellX++;
+                    currentCellX = currentCellX %14;
+                    nextCell = gameField[currentCellY+1][currentCellX+1];
+
+                    break;
+                case Left:
+                    currentCellX--;
+                    if(currentCellX < 0)
+                    {
+                        currentCellX = 13;
+                    }
+                    nextCell = gameField[currentCellY+1][currentCellX+1];
+
+                    break;
+            }
+            if(currentCellX >= 0 && currentCellX < 15 && nextCell > PlayField.WALL_VALUE)
+            {
+                setCurrentCellX(currentCellX);
+                moved = true;
+            }
+            if(currentCellY >= 0 && currentCellY < 15 && nextCell > PlayField.WALL_VALUE)
+            {
+                setCurrentCellY(currentCellY);
+                moved = true;
+            }
+        }
+        setMoving(moved);
+        return gameField[currentCellY+1][currentCellX+1];
     }
 }
