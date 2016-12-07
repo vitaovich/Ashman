@@ -19,17 +19,18 @@ public class Ghost extends A_Player
         super(startCellX, startCellY, cellWidth);
         setCurrentDirection(pickRandomDirection());
         successfulMoves = 0;
+        color = Color.RED;
     }
 
-    @Override
-    public void drawPlayer(Canvas canvas)
-    {
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.RED);
-
-        canvas.drawCircle(getCurrentCellX()*cellWidth + 5, getCurrentCellY()*cellWidth + 5, getPlayerSize(), paint);
-    }
+//    @Override
+//    public void drawPlayer(Canvas canvas)
+//    {
+//        Paint paint = new Paint();
+//        paint.setStyle(Paint.Style.FILL);
+//        paint.setColor(Color.RED);
+//
+//        canvas.drawCircle(getCurrentCellX()*cellWidth + 5, getCurrentCellY()*cellWidth + 5, getPlayerSize(), paint);
+//    }
 
     public int getSuccessfulMoves()
     {
@@ -43,12 +44,13 @@ public class Ghost extends A_Player
 
     public void seeIfChangeDirectionIsNeeded()
     {
-        if(getSuccessfulMoves() > 14 || !isMoving())
+        if(getSuccessfulMoves() > 14 || atWall)
         {
             setCurrentDirection(pickRandomDirection());
+            atWall = false;
             setSuccessfulMoves(0);
         }
-        if(isMoving())
+        if(!atWall)
         {
             setSuccessfulMoves(getSuccessfulMoves()+1);
         }

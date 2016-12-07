@@ -1,6 +1,8 @@
 package com.alekhnovich.vitaliy.voalekhnovichashman;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import java.util.Random;
 
@@ -14,31 +16,20 @@ public abstract class A_Player
     protected int cellWidth;
     private int currentCellX;
     private int currentCellY;
-    private float positionX;
-    private float positionY;
     private float playerSize;
     private boolean moving;
-
+    private int subStep;
+    protected boolean atWall;
+    protected int color;
 
     public A_Player(int startCellX, int startCellY, int cellWidth)
     {
         this.currentCellX = startCellX;
         this.currentCellY = startCellY;
         this.cellWidth = cellWidth;
-        //center position on cell
-        this.positionX = getCurrentCellX()*cellWidth + cellWidth/2;
-        this.positionY = getCurrentCellY()*cellWidth + cellWidth/2;
         playerSize = cellWidth/3;
         moving = false;
-    }
-    
-    public void setPositionX(float positionX)
-    {
-        this.positionX = positionX;
-    }
-    public float getPositionX()
-    {
-        return this.positionX;
+        subStep = 1;
     }
 
     public void setCurrentCellX(int currentCellX)
@@ -59,15 +50,6 @@ public abstract class A_Player
         return this.currentCellY;
     }
 
-    public void setPositionY(float positionY)
-    {
-        this.positionY = positionY;
-    }
-    public float getPositionY()
-    {
-        return this.positionY;
-    }
-
     public void setPlayerSize(float playerSize)
     {
         this.playerSize = playerSize;
@@ -77,14 +59,67 @@ public abstract class A_Player
         return this.playerSize;
     }
 
+    public int getSubStep()
+    {
+        return this.subStep;
+    }
+
+    public void setSubStep(int subStep)
+    {
+        if(subStep < 0)
+        {
+            subStep = 3;
+        }
+        this.subStep = subStep % 4;
+    }
 
     public void setCurrentDirection(Directions direction)
     {
-            this.currentDirection = direction;
+        setSubStep(1);
+        this.currentDirection = direction;
     }
     public Directions getCurrentDirection() { return this.currentDirection; }
 
-    public abstract void drawPlayer(Canvas canvas);
+    public void drawPlayer(Canvas canvas)
+    {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(color);
+        float cx = getCurrentCellX()*cellWidth, cy = getCurrentCellY()*cellWidth;
+        if(getCurrentDirection() == Directions.Right && !atWall)
+        {
+            cx = cx + (float)2.5*(getSubStep()+1);
+        }
+        else if(getCurrentDirection() == Directions.Left && !atWall)
+        {
+            if(getSubStep() == 3)
+            {
+                cx = cx - 10;
+            }
+            cx = cx + (float)2.5*(getSubStep()+1);
+        }
+        else
+        {
+            cx = cx + 5;
+        }
+        if(getCurrentDirection() == Directions.Down && !atWall)
+        {
+            cy = cy + (float)2.5*(getSubStep()+1);
+        }
+        else if(getCurrentDirection() == Directions.Up && !atWall)
+        {
+            if(getSubStep() == 3)
+            {
+                cy = cy - 10;
+            }
+            cy = cy + (float)2.5*(getSubStep()+1);
+        }
+        else
+        {
+            cy = cy + 5;
+        }
+        canvas.drawCircle(cx, cy, getPlayerSize(), paint);
+    }
 
     public static Directions pickRandomDirection()
     {
@@ -125,48 +160,67 @@ public abstract class A_Player
 
         if(direction != null)
         {
-            currentCellX = getCurrentCellX();
-            currentCellY = getCurrentCellY();
-            switch(direction)
+            if(getSubStep() == 3)
             {
-                case Up:
-                    currentCellY--;
-                    if(currentCellY < 0)
-                    {
-                        currentCellY = 13;
-                    }
-                    nextCell = gameField[currentCellY+1][currentCellX+1];
-                    break;
-                case Down:
-                    currentCellY++;
-                    currentCellY = currentCellY % 14;
-                    nextCell = gameField[currentCellY+1][currentCellX+1];
-                    break;
-                case Right:
-                    currentCellX++;
-                    currentCellX = currentCellX %14;
-                    nextCell = gameField[currentCellY+1][currentCellX+1];
+                currentCellX = getCurrentCellX();
+                currentCellY = getCurrentCellY();
+                switch(direction)
+                {
+                    case Up:
+                        currentCellY--;
+                        if(currentCellY < 0)
+                        {
+                            currentCellY = 13;
+                        }
+                        nextCell = gameField[currentCellY+1][currentCellX+1];
+                        break;
+                    case Down:
+                        currentCellY++;
+                        currentCellY = currentCellY % 14;
+                        nextCell = gameField[currentCellY+1][currentCellX+1];
+                        break;
+                    case Right:
+                        currentCellX++;
+                        currentCellX = currentCellX %14;
+                        nextCell = gameField[currentCellY+1][currentCellX+1];
 
-                    break;
-                case Left:
-                    currentCellX--;
-                    if(currentCellX < 0)
-                    {
-                        currentCellX = 13;
-                    }
-                    nextCell = gameField[currentCellY+1][currentCellX+1];
+                        break;
+                    case Left:
+                        currentCellX--;
+                        if(currentCellX < 0)
+                        {
+                            currentCellX = 13;
+                        }
+                        nextCell = gameField[currentCellY+1][currentCellX+1];
 
-                    break;
+                        break;
+                }
+                if(currentCellX >= 0 && currentCellX < 15 && nextCell > PlayField.WALL_VALUE)
+                {
+                    setCurrentCellX(currentCellX);
+                    moved = true;
+                }
+                if(currentCellY >= 0 && currentCellY < 15 && nextCell > PlayField.WALL_VALUE)
+                {
+                    setCurrentCellY(currentCellY);
+                    moved = true;
+                }
+                if(nextCell == PlayField.WALL_VALUE)
+                {
+                    atWall = true;
+                }
+                else
+                {
+                    atWall = false;
+                }
             }
-            if(currentCellX >= 0 && currentCellX < 15 && nextCell > PlayField.WALL_VALUE)
+            if(getCurrentDirection() == Directions.Left || getCurrentDirection() == Directions.Up)
             {
-                setCurrentCellX(currentCellX);
-                moved = true;
+                setSubStep(getSubStep()-1);
             }
-            if(currentCellY >= 0 && currentCellY < 15 && nextCell > PlayField.WALL_VALUE)
+            else
             {
-                setCurrentCellY(currentCellY);
-                moved = true;
+                setSubStep(getSubStep()+1);
             }
         }
         setMoving(moved);

@@ -33,7 +33,7 @@ public class PlayField extends View implements MediaPlayer.OnCompletionListener
     public final static int PLAYFIELD_PHYSICAL_WIDTH = 140;
     public final static int PLAYFIELD_PHYSICAL_HEIGHT = 140;
     public final static String LEVEL_SEED = "levelone";
-    private static final int TIMER_MSEC = 70;
+    private static final int TIMER_MSEC = 100;
 
     private Handler mHandler;
     private Runnable mTimer;
